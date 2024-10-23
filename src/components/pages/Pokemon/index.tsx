@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Pokemon, PokemonResponse, usePokemon } from "../../../hooks";
-import { Table } from "antd";
-import { Container } from "pages/Pokemon/styled";
+import { Input, Table } from "antd";
+import { Container, SearchContainer } from "pages/Pokemon/styled";
 
 const tableColumns = [
   {
@@ -23,7 +23,7 @@ type PokemonWithId = Pokemon & {
 const PokemonPage = () => {
   const [pokemonResponse, setPokemonResponse] = useState<PokemonResponse>();
   const [pokemmon, setPokemon] = useState<PokemonWithId[]>([]);
-  const [search, setSearch] = useState();
+  const [search, setSearch] = useState<string>();
   const [offset, setOffset] = useState(0);
   const [limit, setLimit] = useState(10);
   const [page, setPage] = useState(1);
@@ -36,6 +36,10 @@ const PokemonPage = () => {
     setOffset((page - 1) * pageSize);
   };
 
+  const handleSearchChange = (evt: React.ChangeEvent<HTMLInputElement>) => {
+    setSearch(evt.target.value);
+  };
+
   useEffect(() => {
     if (data && !error) {
       setPokemonResponse(JSON.parse(data as unknown as string));
@@ -43,18 +47,24 @@ const PokemonPage = () => {
   }, [data, error]);
 
   useEffect(() => {
-    // TODO: implement search
     if (pokemonResponse?.results) {
       setTotalPages(Math.ceil(pokemonResponse.count / limit));
 
-      setPokemon(
-        pokemonResponse.results.map((pokemon, index) => ({
-          ...pokemon,
-          id: index,
-        })),
-      );
+      const data = pokemonResponse.results.map((pokemon, index) => ({
+        ...pokemon,
+        id: index,
+      }));
+
+      if (search) {
+        const filteredData = data.filter((pokemon) =>
+          pokemon.name.includes(search),
+        );
+        setPokemon(filteredData);
+      } else {
+        setPokemon(data);
+      }
     }
-  }, [pokemonResponse]);
+  }, [limit, pokemonResponse, search]);
 
   if (!pokemonResponse) {
     return <strong>Loading...</strong>;
@@ -63,6 +73,10 @@ const PokemonPage = () => {
   return (
     <Container>
       {isLoading && <strong>Fetching Data...</strong>}
+
+      <SearchContainer>
+        <Input placeholder={"Search"} onChange={handleSearchChange} />
+      </SearchContainer>
 
       <Table
         columns={tableColumns}
