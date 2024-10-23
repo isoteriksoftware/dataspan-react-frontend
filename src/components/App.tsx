@@ -5,6 +5,7 @@ import GlobalStyle from "styles";
 
 const Home = lazy(() => import("pages/Home"));
 const Pokemon = lazy(() => import("pages/Pokemon"));
+const Canvas = lazy(() => import("pages/Canvas"));
 
 const App: React.FC = () => (
   <main>
@@ -13,6 +14,7 @@ const App: React.FC = () => (
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/pokemon" element={<Pokemon />} />
+        <Route path="/canvas" element={<Canvas />} />
       </Routes>
     </Suspense>
   </main>
